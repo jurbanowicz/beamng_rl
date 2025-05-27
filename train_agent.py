@@ -2,6 +2,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.monitor import Monitor
 from beamng_env import BeamNGEnv
 from gymnasium.wrappers import TimeLimit
+from stable_baselines3.common.callbacks import CheckpointCallback
 from datetime import datetime
 import os
 
@@ -22,7 +23,28 @@ env = BeamNGEnv()
 env = Monitor(env, filename=monitor_filename)
 
 env = TimeLimit(env, max_episode_steps=1000)
-model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=tensorboard_log_dir)
+
+choice = input("Do you want to resume training from the last checkpoint? (y/n): ").strip().lower()
+
+latest_model = None
+if choice == "y" and os.path.isdir(model_dir):
+    checkpoints = [f for f in os.listdir(model_dir) if f.endswith(".zip")]
+    if checkpoints:
+        latest_model = max(checkpoints, key=lambda f: os.path.getctime(os.path.join(model_dir, f)))
+        print(f"Resuming from: {latest_model}")
+    else:
+        print("No saved model found. Starting new training.")
+
+if latest_model:
+    model = PPO.load(os.path.join(model_dir, latest_model), env=env, tensorboard_log=log_dir)
+else:
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
+
+checkpoint_callback = CheckpointCallback(
+    save_freq=10000,
+    save_path=model_dir,
+    name_prefix="ppo_beamng_checkpoint"
+)
 
 model_path = os.path.join(model_dir, f"ppo_beamng_{timestamp}")
 try:
