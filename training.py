@@ -5,6 +5,9 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 
+LOW_GEAR = 0 # Neutral could be chnaged to -1 to include reverse
+HIGH_GEAR = 6 # 6th gear is the highest
+
 class Training:
     def __init__(self, bng: BeamNGpy, scenario: Scenario, vehicle: Vehicle):
         self.bng = bng
@@ -18,37 +21,37 @@ class Training:
 
         # Action space: [throttle, clutch, gear]
         self.action_space = spaces.Box(
-            low=np.array([0.0, 0.0, -1.0]),     # Throttle, clutch, gear (float, will round)
+            low=np.array([0.0, 0.0, 0.0]),     # Throttle, clutch, gear (float, will round)
             high=np.array([1.0, 1.0, 6.0]),
             dtype=np.float32
         )
 
 
         # obs vector: [speed, rpm, gear, clutch_input, throttle_input]
-        self.observation_space = spaces.Box(low=np.array([0, 0, 0, 0, 0]),
-                                    high=np.array([300, 10000, 6, 1, 1]),
+        self.observation_space = spaces.Box(low=np.array([0, 0, LOW_GEAR, 0, 0]),
+                                    high=np.array([300, 10000, HIGH_GEAR, 1, 1]),
                                     dtype=np.float32)
 
-    def start(self):
-        """Start the lerning process in current scenario."""
+    # def start(self):
+    #     """Start the lerning process in current scenario."""
 
-        self.vehicle.control(steering=0.0, throttle=0.0, brake=0.0, gear=2)
-        obs = self._get_obs()
-        done = False
+    #     self.vehicle.control(steering=0.0, throttle=0.0, brake=0.0, gear=2)
+    #     obs = self._get_obs()
+    #     done = False
 
-        # self.bng.control.pause()
+    #     # self.bng.control.pause()
 
-        while not done:
-            action = self.action_space.sample()  # Replace with agent later
-            obs, reward, done, _ = self.step(action)
-            # print(f"Obs: {obs}, Reward: {reward}")
+    #     while not done:
+    #         action = self.action_space.sample()  # Replace with agent later
+    #         obs, reward, done, _ = self.step(action)
+    #         # print(f"Obs: {obs}, Reward: {reward}")
 
     def step(self, action):
         throttle, clutch, gear = action
         gear = int(round(gear))  # Discretize gear
 
         # Optional: clamp gear to allowed values
-        gear = np.clip(gear, -1, 6)
+        gear = np.clip(gear, LOW_GEAR, HIGH_GEAR)
 
         self.vehicle.control(
             steering=0.0,  # always straight
