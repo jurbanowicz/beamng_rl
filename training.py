@@ -95,17 +95,26 @@ class Training:
 
     def _compute_reward(self, obs):
         damage = self.damage_sensor.data['damage']
+        rpm = self.electric_sensor.get('rpm', 0)
 
         if damage > 100:
             return -100.0 
+    
+        if rpm < 100:  # If the engine is stalled
+            return -100.0
         
         return obs[0]  # Reward = forward speed
 
     def _check_done(self, obs):
         damage = self.damage_sensor.data['damage']
+        rpm = self.electric_sensor.get('rpm', 0)
 
         if damage > 100:
             print(f"Crash detected! Damage: {damage}")
+            return True
+
+        if rpm < 100:  # If the engine is stalled
+            print(f"Engine stalled! RPM: {rpm}")
             return True
         return False
         
