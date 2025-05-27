@@ -8,6 +8,10 @@ import numpy as np
 LOW_GEAR = 0 # Neutral could be chnaged to -1 to include reverse
 HIGH_GEAR = 6 # 6th gear is the highest
 
+SPEED_REWARD = 0.25  # Reward multiplier for speed
+ACC_REWARD = 3  # Reward multiplier for acceleration
+DECC_REWARD = 0.05  # Penalty multiplier for deceleration (negative acceleration)
+
 class Training:
     def __init__(self, bng: BeamNGpy, scenario: Scenario, vehicle: Vehicle):
         self.bng = bng
@@ -94,24 +98,24 @@ class Training:
         negative_acceleration = min(acceleration, 0)
 
         if damage > 100:
-            return -100.0 
+            return -10.0
     
         if rpm < 100:  # If the engine is stalled
-            return -100.0
+            return -10.0
 
         reward = 0.0
 
         # 1. Reward forward speed (mildly)
-        reward += speed * 0.1  # Encourage movement
+        reward += speed * SPEED_REWARD # Encourage movement
 
         # 2. Reward acceleration
-        reward += positive_acceleration * 2
-        reward += negative_acceleration * 0.25  # Penalize deceleration
+        reward += positive_acceleration * ACC_REWARD
+        reward += negative_acceleration * DECC_REWARD  # Penalize deceleration
 
         if 2000 <= rpm <= 7000:
             reward += 1.0
         elif rpm > 7000:  # Over-revving
-            reward -= (rpm - 6000) / 1000
+            reward -= (rpm - 7000) / 1000
 
         # 3. Penalize clutch abuse (engaged clutch + high throttle or high RPM)
         # if clutch_input < 0.5 and throttle_input > 0.5 and rpm > 3000:

@@ -3,6 +3,7 @@ from stable_baselines3.common.monitor import Monitor
 from beamng_env import BeamNGEnv
 from gymnasium.wrappers import TimeLimit
 from stable_baselines3.common.callbacks import CheckpointCallback
+from callbacks import CustomTensorboardCallback
 from datetime import datetime
 import os
 import torch
@@ -50,11 +51,14 @@ checkpoint_callback = CheckpointCallback(
     name_prefix="ppo_beamng_checkpoint"
 )
 
+custom_callback = CustomTensorboardCallback(log_dir=tensorboard_log_dir)
+
 model_path = os.path.join(model_dir, f"ppo_beamng_{timestamp}")
 try:
     model.learn(
         total_timesteps=1_000_000,
-        tb_log_name="PPO_BeamNG"
+        tb_log_name="PPO_BeamNG",
+        callback=[checkpoint_callback, custom_callback]
     )
 except KeyboardInterrupt:
     print("\n[INFO] Training interrupted. Saving model...")
