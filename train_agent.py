@@ -5,6 +5,10 @@ from gymnasium.wrappers import TimeLimit
 from stable_baselines3.common.callbacks import CheckpointCallback
 from datetime import datetime
 import os
+import torch
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Using device:", device)
 
 log_dir = "./logs/"
 os.makedirs(log_dir, exist_ok=True)
@@ -36,9 +40,9 @@ if choice == "y" and os.path.isdir(model_dir):
         print("No saved model found. Starting new training.")
 
 if latest_model:
-    model = PPO.load(os.path.join(model_dir, latest_model), env=env, tensorboard_log=log_dir)
+    model = PPO.load(os.path.join(model_dir, latest_model), env=env, tensorboard_log=log_dir, device=device)
 else:
-    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir)
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, device=device)
 
 checkpoint_callback = CheckpointCallback(
     save_freq=10000,
