@@ -19,6 +19,8 @@ class Training:
         self.electric_sensor = Electrics()
         self.vehicle.attach_sensor('electrics', self.electric_sensor)
 
+        self.prev_speed = 0.0
+
         # Action space: [throttle, clutch, gear]
         self.action_space = spaces.Box(
             low=np.array([0.0, 0.0, 0.0]),     # Throttle, clutch, gear (float, will round)
@@ -87,6 +89,9 @@ class Training:
         clutch_input = self.electric_sensor.get('clutch_input', 0.0)
         throttle_input = self.electric_sensor.get('throttle_input', 0.0)
         gear = self.electric_sensor.get('gear', 0)
+        acceleration = speed - self.prev_speed
+        positive_acceleration = max(acceleration, 0)
+        negative_acceleration = min(acceleration, 0)
 
         if damage > 100:
             return -100.0 
@@ -99,14 +104,18 @@ class Training:
         # 1. Reward forward speed (mildly)
         reward += speed * 0.1  # Encourage movement
 
+        # 2. Reward acceleration
+        reward += positive_acceleration * 2
+        reward += negative_acceleration * 0.25  # Penalize deceleration
+
         if 2000 <= rpm <= 7000:
             reward += 1.0
         elif rpm > 7000:  # Over-revving
             reward -= (rpm - 6000) / 1000
 
         # 3. Penalize clutch abuse (engaged clutch + high throttle or high RPM)
-        if clutch_input < 0.5 and throttle_input > 0.5 and rpm > 3000:
-            reward -= 2.0  # Harsh clutch dump
+        # if clutch_input < 0.5 and throttle_input > 0.5 and rpm > 3000:
+        #     reward -= 2.0  # Harsh clutch dump
 
         # 4. Penalize mismatched gear/speed
         expected_gear = self._suggested_gear(speed)
