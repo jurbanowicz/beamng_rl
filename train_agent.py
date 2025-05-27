@@ -40,9 +40,9 @@ if choice == "y" and os.path.isdir(model_dir):
         print("No saved model found. Starting new training.")
 
 if latest_model:
-    model = PPO.load(os.path.join(model_dir, latest_model), env=env, tensorboard_log=log_dir, device=device)
+    model = PPO.load(os.path.join(model_dir, latest_model), env=env, tensorboard_log=tensorboard_log_dir, device=device)
 else:
-    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=log_dir, device=device)
+    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log=tensorboard_log_dir, device=device)
 
 checkpoint_callback = CheckpointCallback(
     save_freq=10000,
