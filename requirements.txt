@@ -1,0 +1,4 @@
+beamngpy==1.32
+gym==0.26.2
+gym-notices==0.0.8
+gymnasium==1.1.1
