@@ -32,19 +32,6 @@ class Training:
                                     high=np.array([300, 10000, HIGH_GEAR, 1, 1]),
                                     dtype=np.float32)
 
-    # def start(self):
-    #     """Start the lerning process in current scenario."""
-
-    #     self.vehicle.control(steering=0.0, throttle=0.0, brake=0.0, gear=2)
-    #     obs = self._get_obs()
-    #     done = False
-
-    #     # self.bng.control.pause()
-
-    #     while not done:
-    #         action = self.action_space.sample()  # Replace with agent later
-    #         obs, reward, done, _ = self.step(action)
-    #         # print(f"Obs: {obs}, Reward: {reward}")
 
     def step(self, action):
         throttle, clutch, gear = action
@@ -96,14 +83,37 @@ class Training:
     def _compute_reward(self, obs):
         damage = self.damage_sensor.data['damage']
         rpm = self.electric_sensor.get('rpm', 0)
+        speed = self.electric_sensor.get('airspeed', 0)
+        clutch_input = self.electric_sensor.get('clutch_input', 0.0)
+        throttle_input = self.electric_sensor.get('throttle_input', 0.0)
+        gear = self.electric_sensor.get('gear', 0)
 
         if damage > 100:
             return -100.0 
     
         if rpm < 100:  # If the engine is stalled
             return -100.0
-        
-        return obs[0]  # Reward = forward speed
+
+        reward = 0.0
+
+        # 1. Reward forward speed (mildly)
+        reward += speed * 0.1  # Encourage movement
+
+        if 2000 <= rpm <= 7000:
+            reward += 1.0
+        elif rpm > 7000:  # Over-revving
+            reward -= (rpm - 6000) / 1000
+
+        # 3. Penalize clutch abuse (engaged clutch + high throttle or high RPM)
+        if clutch_input < 0.5 and throttle_input > 0.5 and rpm > 3000:
+            reward -= 2.0  # Harsh clutch dump
+
+        # 4. Penalize mismatched gear/speed
+        expected_gear = self._suggested_gear(speed)
+        if abs(gear - expected_gear) > 1:
+            reward -= 1.0        
+
+        return reward
 
     def _check_done(self, obs):
         damage = self.damage_sensor.data['damage']
@@ -122,3 +132,18 @@ class Training:
         """Restart the scenario."""
         self.bng.scenario.restart()
         print("Scenario restarted.")
+
+
+    def _suggested_gear(self, speed):
+        if speed < 50:
+            return 1
+        elif speed < 70:
+            return 2
+        elif speed < 100:
+            return 3
+        elif speed < 150:
+            return 4
+        elif speed < 200:
+            return 5
+        else:
+            return 6
