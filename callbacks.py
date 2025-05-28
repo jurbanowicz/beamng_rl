@@ -30,7 +30,8 @@ class CustomTensorboardCallback(BaseCallback):
 
             for key in ['throttle', 'clutch', 'gear', 'rpm', 'speed', 'acceleration']:
                 if key in info:
-                    self.writer.add_scalar(f"Custom/{key.capitalize()}", info[key], step)
+                    value = float(info[key])
+                    self.writer.add_scalar(f"Custom/{key.capitalize()}", value, step)
 
             self.writer.flush()  # Ensure data is written to disk
 
