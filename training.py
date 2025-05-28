@@ -64,7 +64,11 @@ class Training:
         info = {
             "damage": self.damage_sensor.data['damage'],
             "speed": obs[0],
-            "position": obs[1:4].tolist(),
+            "rpm": obs[1],
+            "gear": obs[2],
+            "clutch": obs[3],
+            "throttle": obs[4],
+            "acceleration": obs[0] - self.prev_speed
         }
 
         return obs, reward, done, info
