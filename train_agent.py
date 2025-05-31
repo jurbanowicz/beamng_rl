@@ -54,7 +54,9 @@ checkpoint_callback = CheckpointCallback(
     name_prefix="ppo_beamng_checkpoint"
 )
 
-custom_callback = CustomTensorboardCallback(log_dir=custom_tensorboard_log_dir, verbose=1)
+custom_log_file = os.path.join(custom_tensorboard_log_dir, f"log_{timestamp}")
+
+custom_callback = CustomTensorboardCallback(log_dir=custom_log_file)
 
 model_path = os.path.join(model_dir, f"ppo_beamng_{timestamp}")
 try:

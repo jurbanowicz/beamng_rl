@@ -78,6 +78,8 @@ class Training:
         self.vehicle.poll_sensors()
 
         speed = self.electric_sensor['airspeed']
+        speed = speed * 3.6
+
         # print(f"Electrics data: {self.electric_sensor}")
         clutch_input = self.electric_sensor.get('clutch_input', 0.0)  # Default to 0 if clutch not available
         throttle_input = self.electric_sensor.get('throttle_input', 0.0)  # Default to 0 if throttle not available
