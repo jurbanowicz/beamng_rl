@@ -158,9 +158,9 @@ class Training:
             return 2
         elif speed < 150:
             return 3
-        elif speed < 190:
+        elif speed < 200:
             return 4
-        elif speed < 220:
+        elif speed < 240:
             return 5
         else:
             return 6
