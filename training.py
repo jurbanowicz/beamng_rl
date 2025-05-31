@@ -11,6 +11,7 @@ HIGH_GEAR = 6 # 6th gear is the highest
 SPEED_REWARD = 0.25  # Reward multiplier for speed
 ACC_REWARD = 3  # Reward multiplier for acceleration
 DECC_REWARD = 0.05  # Penalty multiplier for deceleration (negative acceleration)
+OVERREV_PENALTY = 1 * 10  # Penalty for over-revving the engine
 
 class Training:
     def __init__(self, bng: BeamNGpy, scenario: Scenario, vehicle: Vehicle):
@@ -122,7 +123,7 @@ class Training:
         if 2000 <= rpm <= 7000:
             reward += 1.0
         elif rpm > 7000:  # Over-revving
-            reward -= (rpm - 7000) / 1000
+            reward -= ((rpm - 7000) / 1000) * OVERREV_PENALTY
 
         # 3. Penalize clutch abuse (engaged clutch + high throttle or high RPM)
         # if clutch_input < 0.5 and throttle_input > 0.5 and rpm > 3000:
