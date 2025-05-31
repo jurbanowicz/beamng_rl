@@ -152,15 +152,15 @@ class Training:
 
 
     def _suggested_gear(self, speed):
-        if speed < 50:
+        if speed < 40:
             return 1
         elif speed < 70:
             return 2
-        elif speed < 100:
-            return 3
         elif speed < 150:
+            return 3
+        elif speed < 190:
             return 4
-        elif speed < 200:
+        elif speed < 220:
             return 5
         else:
             return 6
