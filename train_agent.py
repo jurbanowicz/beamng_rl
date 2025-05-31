@@ -20,6 +20,9 @@ os.makedirs(model_dir, exist_ok=True)
 tensorboard_log_dir = os.path.join(log_dir, "tensorboard_logs")
 os.makedirs(tensorboard_log_dir, exist_ok=True)
 
+custom_tensorboard_log_dir = os.path.join(tensorboard_log_dir, "custom_tensorboard_logs")
+os.makedirs(custom_tensorboard_log_dir, exist_ok=True)
+
 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
 monitor_filename = os.path.join(log_dir, f"monitor_{timestamp}.csv")
@@ -51,7 +54,7 @@ checkpoint_callback = CheckpointCallback(
     name_prefix="ppo_beamng_checkpoint"
 )
 
-custom_callback = CustomTensorboardCallback(log_dir=tensorboard_log_dir)
+custom_callback = CustomTensorboardCallback(log_dir=custom_tensorboard_log_dir, verbose=1)
 
 model_path = os.path.join(model_dir, f"ppo_beamng_{timestamp}")
 try:
