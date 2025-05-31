@@ -100,6 +100,7 @@ class Training:
         throttle_input = self.electric_sensor.get('throttle_input', 0.0)
         gear = self.electric_sensor.get('gear', 0)
         acceleration = speed - self.prev_speed
+        self.prev_speed = speed
         positive_acceleration = max(acceleration, 0)
         negative_acceleration = min(acceleration, 0)
 
