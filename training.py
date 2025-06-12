@@ -8,10 +8,11 @@ import numpy as np
 LOW_GEAR = 0 # Neutral could be chnaged to -1 to include reverse
 HIGH_GEAR = 6 # 6th gear is the highest
 
-SPEED_REWARD = 0.25  # Reward multiplier for speed
-ACC_REWARD = 0.5  # Reward multiplier for acceleration
-DECC_REWARD = 0.05  # Penalty multiplier for deceleration (negative acceleration)
+SPEED_REWARD = 0.1  # Reward multiplier for speed
+ACC_REWARD = 0.25  # Reward multiplier for acceleration
+DECC_REWARD = 0.1  # Penalty multiplier for deceleration (negative acceleration)
 OVERREV_PENALTY = 1 * 10  # Penalty for over-revving the engine
+WRONG_GEAR_PENALTY = 10.0  # Penalty for being in the wrong gear
 
 class Training:
     def __init__(self, bng: BeamNGpy, scenario: Scenario, vehicle: Vehicle):
@@ -94,17 +95,11 @@ class Training:
 
 
     def _compute_reward(self, obs):
-        # damage = self.damage_sensor.data['damage']
         damage = self.damage_sensor.get('damage', 0)
-        # speed = self.electric_sensor.get('airspeed', 0)
         speed = obs[0]
-        # rpm = self.electric_sensor.get('rpm', 0)
         rpm = obs[1]
-        # gear = self.electric_sensor.get('gear', 0)
         gear = obs[2]
-        # clutch_input = self.electric_sensor.get('clutch_input', 0.0)
         clutch_input = obs[3]
-        # throttle_input = self.electric_sensor.get('throttle_input', 0.0)
         throttle_input = obs[4]
         acceleration = speed - self.prev_speed
         self.prev_speed = speed
@@ -138,7 +133,7 @@ class Training:
         # 4. Penalize mismatched gear/speed
         expected_gear = self._suggested_gear(speed)
         if abs(gear - expected_gear) > 1:
-            reward -= 10.0       
+            reward -= 1 * WRONG_GEAR_PENALTY
 
         return reward
 
