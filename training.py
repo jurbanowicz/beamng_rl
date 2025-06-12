@@ -8,7 +8,7 @@ import numpy as np
 LOW_GEAR = 0 # Neutral could be chnaged to -1 to include reverse
 HIGH_GEAR = 6 # 6th gear is the highest
 
-SPEED_REWARD = 0.1  # Reward multiplier for speed
+SPEED_REWARD = 0.4  # Reward multiplier for speed
 ACC_REWARD = 0.25  # Reward multiplier for acceleration
 DECC_REWARD = 0.1  # Penalty multiplier for deceleration (negative acceleration)
 OVERREV_PENALTY = 1 * 10  # Penalty for over-revving the engine
