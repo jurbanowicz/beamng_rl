@@ -26,6 +26,7 @@ class Training:
         self.vehicle.attach_sensor('electrics', self.electric_sensor)
 
         self.prev_speed = 0.0
+        self.acceleration = 0.0
 
         # Action space: [throttle, clutch, gear]
         self.action_space = spaces.Box(
@@ -70,7 +71,7 @@ class Training:
             "gear": obs[2],
             "clutch": obs[3],
             "throttle": obs[4],
-            "acceleration": obs[0] - self.prev_speed
+            "acceleration": self.acceleration,
         }
 
         return obs, reward, done, info
@@ -101,10 +102,10 @@ class Training:
         gear = obs[2]
         clutch_input = obs[3]
         throttle_input = obs[4]
-        acceleration = speed - self.prev_speed
+        self.acceleration = speed - self.prev_speed
         self.prev_speed = speed
-        positive_acceleration = max(acceleration, 0)
-        negative_acceleration = min(acceleration, 0)
+        positive_acceleration = max(self.acceleration, 0)
+        negative_acceleration = min(self.acceleration, 0)
 
         if damage > 100:
             return -10.0
