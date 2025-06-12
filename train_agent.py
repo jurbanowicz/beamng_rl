@@ -37,8 +37,6 @@ env = Monitor(env, filename=monitor_filename)
 
 env = TimeLimit(env, max_episode_steps=1000)
 
-choice = input("Do you want to resume training from the last checkpoint? (y/n): ").strip().lower()
-
 latest_model = None
 if args.resume and os.path.isdir(model_dir):
     checkpoints = [f for f in os.listdir(model_dir) if f.endswith(".zip")]
