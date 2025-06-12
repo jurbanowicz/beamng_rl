@@ -8,11 +8,12 @@ import numpy as np
 LOW_GEAR = 0 # Neutral could be chnaged to -1 to include reverse
 HIGH_GEAR = 6 # 6th gear is the highest
 
-SPEED_REWARD = 0.4  # Reward multiplier for speed
-ACC_REWARD = 0.25  # Reward multiplier for acceleration
-DECC_REWARD = 0.1  # Penalty multiplier for deceleration (negative acceleration)
+SPEED_REWARD = 0.5  # Reward multiplier for speed
+ACC_REWARD = 20  # Reward multiplier for acceleration
+DECC_REWARD = 1  # Penalty multiplier for deceleration (negative acceleration)
 OVERREV_PENALTY = 1 * 10  # Penalty for over-revving the engine
 WRONG_GEAR_PENALTY = 10.0  # Penalty for being in the wrong gear
+RIGHT_GEAR_BONUS = 5.0  # Bonus for being in the right gear
 
 class Training:
     def __init__(self, bng: BeamNGpy, scenario: Scenario, vehicle: Vehicle):
@@ -135,6 +136,8 @@ class Training:
         expected_gear = self._suggested_gear(speed)
         if abs(gear - expected_gear) > 1:
             reward -= 1 * WRONG_GEAR_PENALTY
+        else:
+            reward += 1 * RIGHT_GEAR_BONUS  # Bonus for being in the right gear
 
         return reward
 
