@@ -1,3 +1,4 @@
+import argparse
 from stable_baselines3 import PPO
 from stable_baselines3.common.monitor import Monitor
 from beamng_env import BeamNGEnv
@@ -7,6 +8,10 @@ from callbacks import CustomTensorboardCallback
 from datetime import datetime
 import os
 import torch
+
+parser = argparse.ArgumentParser(description="Train PPO agent in BeamNG environment.")
+parser.add_argument('--resume', action='store_true', help="Resume training from the latest checkpoint")
+args = parser.parse_args()
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using device:", device)
@@ -35,7 +40,7 @@ env = TimeLimit(env, max_episode_steps=1000)
 choice = input("Do you want to resume training from the last checkpoint? (y/n): ").strip().lower()
 
 latest_model = None
-if choice == "y" and os.path.isdir(model_dir):
+if args.resume and os.path.isdir(model_dir):
     checkpoints = [f for f in os.listdir(model_dir) if f.endswith(".zip")]
     if checkpoints:
         latest_model = max(checkpoints, key=lambda f: os.path.getctime(os.path.join(model_dir, f)))
